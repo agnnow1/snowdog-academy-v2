@@ -89,9 +89,28 @@ class Cryptos
 
     public function sellPost(string $id): void
     {
-        // TODO
-        // verify if user is logged in
-        // use $this->userCryptocurrencyManager->subtractCryptocurrencyFromUser() method
+        $user = $this->userManager->getByLogin((string) $_SESSION['login']);
+        if (!$user) {
+            header('Location: /cryptos');
+            return;
+        }
+
+        $cryptocurrency = $this->cryptocurrencyManager->getCryptocurrencyById($id);
+        if (!$cryptocurrency) {
+            header('Location: /cryptos');
+            return;
+        }
+
+        $amount = $_POST['amount'] ?? null;
+
+        if ($amount && $amount !== 0) {
+            try {
+                $this->userCryptocurrencyManager->subtractCryptocurrencyFromUser($user->getId(), $cryptocurrency, (int)$amount);
+                $_SESSION['flash'] = 'Cryptocurrency sold successfully';
+            } catch (\Exception $e) {
+                $_SESSION['flash'] = $e->getMessage();
+            }
+        }
 
         header('Location: /cryptos');
     }
