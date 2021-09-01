@@ -49,9 +49,22 @@ class Cryptos
 
     public function buyPost(string $id): void
     {
-        // TODO
-        // verify if user is logged in
-        // use $this->userCryptocurrencyManager->addCryptocurrencyToUser() method
+        $user = $this->userManager->getByLogin((string) $_SESSION['login']);
+        if (!$user) {
+            header('Location: /cryptos');
+            return;
+        }
+        $amount = $_POST['amount'] ?? null;
+
+        $cryptocurrency = $this->cryptocurrencyManager->getCryptocurrencyById($id);
+        if (!$cryptocurrency) {
+            header('Location: /cryptos');
+            return;
+        }
+
+        if ($amount && $amount !== 0) {
+            $this->userCryptocurrencyManager->addCryptocurrencyToUser($user->getId(), $cryptocurrency, (int) $amount);
+        }
 
         header('Location: /cryptos');
     }
