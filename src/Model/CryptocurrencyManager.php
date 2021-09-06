@@ -43,8 +43,19 @@ class CryptocurrencyManager
         return $query->fetchAll(Database::FETCH_CLASS, Cryptocurrency::class);
     }
 
+    public function getAllCryptocurrenciesIds(): string
+    {
+        $query = $this->database->query('SELECT GROUP_CONCAT(id) FROM cryptocurrencies');
+
+        return $query->fetchColumn();
+    }
+
     public function updatePrice(string $id, float $price): void
     {
-        // TODO
+        $price = number_format($price, 2, '.', '');
+        $query = $this->database->prepare("UPDATE cryptocurrencies SET price = :price WHERE (id = :id)");
+        $query->bindParam('id', $id, Database::PARAM_STR);
+        $query->bindParam('price', $price, Database::PARAM_STR);
+        $query->execute();
     }
 }
