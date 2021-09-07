@@ -55,4 +55,28 @@ class UserManager
     {
         return hash('sha512', $password);
     }
+
+    public function addFunds(User $user, float $amount): void
+    {
+        $newAmount = $user->getFunds() + $amount;
+
+        $this->updateUserFunds($user, $newAmount);
+    }
+
+    public function subtractFundsFromUser(User $user, float $amount): void
+    {
+        $newAmount = $user->getFunds() - $amount;
+
+        $this->updateUserFunds($user, $newAmount);
+    }
+
+    public function updateUserFunds(User $user, float $amount): void
+    {
+        $userId = $user->getId();
+        $query = $this->database->prepare('UPDATE users SET funds = :funds WHERE (id = :id)');
+        $query->bindParam('id', $userId, Database::PARAM_INT);
+        $query->bindParam('funds', $amount, Database::PARAM_STR);
+
+        $query->execute();
+    }
 }

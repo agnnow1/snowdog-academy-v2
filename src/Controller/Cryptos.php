@@ -62,8 +62,17 @@ class Cryptos
             return;
         }
 
-        if ($amount && $amount !== 0) {
-            $this->userCryptocurrencyManager->addCryptocurrencyToUser($user->getId(), $cryptocurrency, (int) $amount);
+        if ($amount && (int) $amount !== 0) {
+            $userFunds = $user->getFunds();
+            $cryptoCurrencyCost = $cryptocurrency->getPrice() * $amount;
+
+            if ($userFunds >= $cryptoCurrencyCost) {
+                $this->userCryptocurrencyManager->addCryptocurrencyToUser($user->getId(), $cryptocurrency, (int) $amount);
+                $this->userManager->subtractFundsFromUser($user, $cryptoCurrencyCost);
+            }
+            else {
+                $_SESSION['flash'] = "You don't have enough money!";
+            }
         }
 
         header('Location: /cryptos');
@@ -103,16 +112,17 @@ class Cryptos
 
         $amount = $_POST['amount'] ?? null;
 
-        if ($amount && $amount !== 0) {
+        if ($amount && (int) $amount !== 0) {
             try {
                 $this->userCryptocurrencyManager->subtractCryptocurrencyFromUser($user->getId(), $cryptocurrency, (int)$amount);
                 $_SESSION['flash'] = 'Cryptocurrency sold successfully';
+                $this->userManager->addFunds($user, $cryptocurrency->getPrice() * $amount);
             } catch (\Exception $e) {
                 $_SESSION['flash'] = $e->getMessage();
             }
         }
 
-        header('Location: /cryptos');
+        header('Location: /account');
     }
 
     public function getCryptocurrencies(): array
