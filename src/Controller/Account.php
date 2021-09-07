@@ -20,7 +20,8 @@ class Account
 
     public function index(): void
     {
-        $user = $this->userManager->getByLogin($_SESSION['login']);
+        $login = $_SESSION['login'] ?? '';
+        $user = $this->userManager->getByLogin($login);
         if (!$user) {
             header('Location: /login');
             return;
@@ -32,7 +33,8 @@ class Account
 
     public function getUserCryptocurrencies(): array
     {
-        $user = $this->userManager->getByLogin($_SESSION['login']);
+        $login = $_SESSION['login'] ?? '';
+        $user = $this->userManager->getByLogin($login);
         if (!$user->getId()) {
             return [];
         }
@@ -59,7 +61,8 @@ class Account
 
     public function addFundsPost(): void
     {
-        $user = $this->userManager->getByLogin($_SESSION['login']);
+        $login = $_SESSION['login'] ?? '';
+        $user = $this->userManager->getByLogin($login);
         if (!$user) {
             header('Location: /login');
             return;

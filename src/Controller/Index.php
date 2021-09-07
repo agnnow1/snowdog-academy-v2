@@ -6,7 +6,7 @@ class Index
 {
     public function index(): void
     {
-        if ($_SESSION['login']) {
+        if (isset($_SESSION['login'])) {
             header('Location: /cryptos');
             return;
         }
